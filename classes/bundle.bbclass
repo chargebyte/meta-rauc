@@ -86,6 +86,8 @@ python __anonymous() {
 
         if imgtype == 'image':
             d.appendVarFlag('do_unpack', 'depends', ' ' + image + ':do_image_complete')
+        elif imgtype == 'file':
+            d.appendVarFlag('do_unpack', 'depends', ' ' + image + ':do_image_complete')
         else:
             d.appendVarFlag('do_unpack', 'depends', ' ' + image + ':do_deploy')
 }
@@ -162,7 +164,10 @@ def write_manifest(d):
                 imgsource = d.getVarFlag('RAUC_SLOT_%s' % slot, 'file')
             else:
                 raise bb.build.FuncFailed('Unknown file for slot: %s' % slot)
-            imgname = "%s.%s" % (imgsource, "img")
+            if os.path.exists(d.expand("${WORKDIR}/%s") % imgsource):
+                imgname = imgsource
+            else:
+                imgname = "%s.%s" % (imgsource, "img")
         else:
             raise bb.build.FuncFailed('Unknown image type: %s' % imgtype)
 
@@ -176,7 +181,10 @@ def write_manifest(d):
         # Set or update symlinks to image files
         if os.path.lexists(bundle_imgpath):
             bb.utils.remove(bundle_imgpath)
-        shutil.copy(d.expand("${DEPLOY_DIR_IMAGE}/%s") % imgsource, bundle_imgpath)
+        if os.path.exists(d.expand("${WORKDIR}/%s") % imgsource):
+            shutil.copy(d.expand("${WORKDIR}/%s") % imgsource, bundle_imgpath)
+        else:
+            shutil.copy(d.expand("${DEPLOY_DIR_IMAGE}/%s") % imgsource, bundle_imgpath)
         if not os.path.exists(bundle_imgpath):
             raise bb.build.FuncFailed('Failed creating symlink to %s' % imgname)
 
