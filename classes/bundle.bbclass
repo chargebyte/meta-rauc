@@ -207,6 +207,7 @@ do_unpack_append() {
 }
 
 BUNDLE_BASENAME ??= "${PN}"
+BUNDLE_EXTENSION ??= ".raucb"
 BUNDLE_NAME ??= "${BUNDLE_BASENAME}-${MACHINE}-${DATETIME}"
 # Don't include the DATETIME variable in the sstate package sigantures
 BUNDLE_NAME[vardepsexclude] = "DATETIME"
@@ -242,8 +243,8 @@ do_deploy() {
 		bbwarn "old-style 'bundles/' deploy subdirectory detected! Note hat newly generated bundles will be installed into root image deploy dir instead."
 	fi
 	install -d ${DEPLOYDIR}
-	install ${B}/bundle.raucb ${DEPLOYDIR}/${BUNDLE_NAME}.raucb
-	ln -sf ${BUNDLE_NAME}.raucb ${DEPLOYDIR}/${BUNDLE_LINK_NAME}.raucb
+	install ${B}/bundle.raucb ${DEPLOYDIR}/${BUNDLE_NAME}${BUNDLE_EXTENSION}
+	ln -sf ${BUNDLE_NAME}${BUNDLE_EXTENSION} ${DEPLOYDIR}/${BUNDLE_LINK_NAME}${BUNDLE_EXTENSION}
 }
 
 addtask deploy after do_bundle before do_build
